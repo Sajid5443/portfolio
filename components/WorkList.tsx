@@ -76,7 +76,7 @@ export default function WorkList() {
 
       {!small && <div className={`floater${hover ? " on" : ""}${tall ? " tall" : ""}`} ref={floater} aria-hidden>
         {featured.map((p) => (
-          <video key={p.slug} data-slug={p.slug} src={`/media/${p.slug}-preview.mp4`} muted loop playsInline preload="metadata" />
+          <video key={p.slug} data-slug={p.slug} src={`/media/${p.slug}-preview.mp4`} muted loop playsInline preload="none" />
         ))}
       </div>}
 

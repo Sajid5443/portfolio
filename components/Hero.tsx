@@ -62,10 +62,11 @@ export default function Hero() {
       <div className="hero-head">
         <h1 data-reveal>
           <span className="rv"><span>Motion design</span></span>
-          <span className="rv"><span><em>&amp;</em> 3D that</span></span>
+          <span className="rv"><span><em>&amp;</em> <span className="hl">3D</span> that</span></span>
           <span className="rv"><span>explains products.</span></span>
         </h1>
         <p className="side fade" data-reveal>
+          <span className="avail"><i aria-hidden />{profile.availability}</span>
           <b>{profile.name}</b>
           Explainers, UI animation and 3D for SaaS, fintech and tech brands. Hand-crafted, frame by frame, from Dhaka.
           <span className="hero-ctas">

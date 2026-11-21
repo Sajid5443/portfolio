@@ -24,8 +24,11 @@ export default function ContactForm() {
     const data = new FormData(form);
     if (data.get("botcheck")) return;
     if (!KEY) {
-      setState("error");
-      setMsg("The form isn't connected yet. Message me on WhatsApp or LinkedIn for now.");
+      // No form service connected yet: hand the message to the visitor's email app, already filled in
+      const body = `${data.get("message")}\n\nName: ${data.get("name")}\nEmail: ${data.get("email")}\nProject: ${data.get("project_type")}\nBudget: ${data.get("budget")}`;
+      window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(`New project enquiry from ${data.get("name")}`)}&body=${encodeURIComponent(body)}`;
+      setState("sent");
+      setMsg(`Your email app should open with the message ready to send. If it doesn't, write to ${profile.email}.`);
       return;
     }
     setState("sending");

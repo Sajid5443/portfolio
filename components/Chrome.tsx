@@ -12,19 +12,24 @@ export default function Chrome() {
   const label = useRef<HTMLSpanElement>(null);
   const follow = useRef<HTMLElement>(null);
 
-  // Loader: counts up while the showreel buffers, never longer than ~2.2s
+  // Loader: a short count-up on the first visit only (~1.1s); repeat visits in the same tab skip it
   useEffect(() => {
+    const finish = () => { setDone(true); document.body.classList.remove("loading"); window.dispatchEvent(new Event("site:ready")); };
+    let seen = false;
+    try { seen = sessionStorage.getItem("seen") === "1"; sessionStorage.setItem("seen", "1"); } catch {}
+    if (seen || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setPct(100); finish(); return; }
     document.body.classList.add("loading");
     const start = performance.now();
-    let raf = 0;
-    const tick = (t: number) => {
-      const p = Math.min(100, Math.round(((t - start) / 1600) ** 0.7 * 100));
+    let raf = 0, timer = 0;
+    const tick = () => {
+      const k = Math.max(0, (performance.now() - start) / 1100); // clamp: rAF time can be earlier than `start`
+      const p = Math.min(100, Math.round(k ** 0.7 * 100));
       setPct(p);
       if (p < 100) raf = requestAnimationFrame(tick);
-      else setTimeout(() => { setDone(true); document.body.classList.remove("loading"); window.dispatchEvent(new Event("site:ready")); }, 250);
+      else timer = window.setTimeout(finish, 180);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); clearTimeout(timer); document.body.classList.remove("loading"); };
   }, []);
 
   // Smooth scroll

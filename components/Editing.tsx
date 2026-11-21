@@ -35,15 +35,18 @@ export default function Editing() {
         t.style.transform = `translate3d(${x}px,0,0)`;
         const vel = Math.max(-1, Math.min(1, (target - x) / 300));
         const cx = window.innerWidth / 2;
-        if (!lite) phones.current.forEach((el) => {
-          if (!el) return;
-          const b = el.getBoundingClientRect();
-          const d = (b.left + b.width / 2 - cx) / cx; // -1 (left) … 1 (right)
-          const k = Math.max(-1.2, Math.min(1.2, d));
-          el.style.transform = reduce ? "" :
-            `perspective(1200px) translateY(${Math.abs(k) * 26}px) rotateY(${-k * 16}deg) skewX(${vel * 3}deg) scale(${1 - Math.min(1, Math.abs(k)) * 0.1})`;
-          el.style.opacity = String(1 - Math.min(1, Math.abs(k)) * 0.35);
-        });
+        if (!lite) {
+          // read every card's position first, then write: no forced re-layout per card
+          const els = phones.current;
+          const ds = els.map((el) => { if (!el) return 0; const b = el.getBoundingClientRect(); return (b.left + b.width / 2 - cx) / cx; });
+          els.forEach((el, i) => {
+            if (!el) return;
+            const k = Math.max(-1.2, Math.min(1.2, ds[i])); // -1 (left) … 1 (right)
+            el.style.transform = reduce ? "" :
+              `perspective(1200px) translateY(${Math.abs(k) * 26}px) rotateY(${-k * 16}deg) skewX(${vel * 3}deg) scale(${1 - Math.min(1, Math.abs(k)) * 0.1})`;
+            el.style.opacity = String(1 - Math.min(1, Math.abs(k)) * 0.35);
+          });
+        }
       }
       raf = requestAnimationFrame(loop);
     };

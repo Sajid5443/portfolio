@@ -79,7 +79,7 @@ button { font: inherit; color: inherit; }
 
 /* ── Liquid green background (dark mode) ─────────────
    Big soft blobs of green drift and morph behind the page, like an iPhone wallpaper. */
-.liquid { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); }
+.liquid { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); contain: strict; }
 .liquid i { position: absolute; border-radius: 50%; will-change: transform; }
 .liquid .b1 { width: 75vmax; height: 75vmax; left: -22vmax; top: -28vmax; background: radial-gradient(closest-side, var(--l1), transparent); animation: drift1 26s ease-in-out infinite alternate; }
 .liquid .b2 { width: 85vmax; height: 65vmax; right: -30vmax; top: 15vh; background: radial-gradient(closest-side, var(--l2), transparent); animation: drift2 32s ease-in-out infinite alternate; }
@@ -130,6 +130,16 @@ body { background: transparent !important; }
   background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 85%, transparent), transparent);
 }
 .header > * { pointer-events: auto; }
+/* once the page moves, the header gets a solid backing so it stays readable over videos and cards */
+.header::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .4s var(--ease);
+  background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+.header.scrolled::before { opacity: 1; }
+.header.scrolled { background: none; }
+.header .clock { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.header .clock i { width: 6px; height: 6px; border-radius: 50%; background: var(--key); box-shadow: 0 0 0 3px color-mix(in srgb, var(--key) 22%, transparent); }
+.cv-btn, .theme { white-space: nowrap; }
+@media (max-width: 1180px) and (min-width: 761px) { .header .clock { display: none; } .header nav { gap: 14px; } }
 .header nav { display: flex; gap: 18px; font-size: 13px; justify-self: center; padding-top: 3px; flex-wrap: wrap; justify-content: center; }
 .header nav a { text-decoration: none; opacity: .75; transition: opacity .2s, transform .3s var(--ease); width: max-content; }
 .header nav a:hover, .header nav a.on { opacity: 1; transform: translateY(-1px); }
@@ -152,7 +162,10 @@ body { background: transparent !important; }
   .header { grid-template-columns: 1fr auto; mix-blend-mode: normal; color: var(--ink); }
   .header .name { order: 2; }
   .header .clock { display: none; }
-  .header .name { display: none; }
+  .header { grid-template-columns: 1fr auto auto; align-items: center; }
+  .header .name { order: 0; font-size: 16px; }
+  .menu-btn { order: 1; justify-self: end; font-weight: 600; }
+  .header .right { order: 2; }
   .header nav { display: grid; justify-content: start; justify-self: stretch; flex-wrap: nowrap; }
   .menu-btn { display: block; color: var(--ink); }
   .header nav { position: fixed; inset: 0; z-index: -1; background: var(--inv-bg); color: var(--inv-ink); padding: 90px var(--gutter) 40px; align-content: start; gap: 6px;
@@ -182,6 +195,10 @@ body { background: transparent !important; }
 .hero h1 em { font-style: normal; font-weight: 300; }
 .hero .side { font-size: 15.5px; line-height: 1.55; color: var(--ink-2); margin: 0; padding-bottom: .9em; display: grid; justify-items: start; }
 .hero .side b { color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+.hero h1 .hl { color: var(--key); }
+.avail { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 18px; padding: 6px 13px 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink);
+  background: color-mix(in srgb, var(--key) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--key) 40%, transparent); }
+.avail i { width: 8px; height: 8px; border-radius: 50%; background: var(--key); animation: rec 1.8s infinite; box-shadow: 0 0 0 0 color-mix(in srgb, var(--key) 55%, transparent); }
 @media (max-width: 860px) { .hero-head { grid-template-columns: 1fr; row-gap: 20px; } }
 
 .reel-wrap { width: 100%; margin: 0; }
@@ -271,7 +288,11 @@ body { background: transparent !important; }
 .tile .box img, .tile .box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease), opacity .4s; }
 .tile .box video { opacity: 0; }
 .tile:hover .box video { opacity: 1; }
-.tile:hover .box img, .tile:hover .box video { transform: scale(1.06); }
+.tile:hover .box img, .tile:hover .box video { transform: scale(1.03); }
+.tile .box { transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+.tile:hover .box { transform: translateY(-3px); box-shadow: 0 24px 50px -24px rgba(0,0,0,.7), 0 0 0 1px color-mix(in srgb, var(--key) 45%, transparent); }
+.tile:hover .cap b { color: var(--key); }
+.tile .cap b { transition: color .25s; }
 .tile .cap { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 14px; }
 .tile .cap span { color: var(--mute); }
 @media (max-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } .tile.wide, .tile.wide.right { grid-column: span 2; grid-row: auto; } .tile.left { grid-column: auto; } .tile.wide .box { aspect-ratio: 16/10; } }
@@ -389,6 +410,26 @@ body { background: transparent !important; }
 
 .pill { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 12px 20px; font-weight: 600; font-size: 15px; transition: background .25s, transform .3s var(--ease); border: 0; cursor: pointer; }
 .pill:hover { background: var(--key); color: var(--key-ink); transform: translateY(-2px); }
+.pill:active, .cv-btn:active, .theme:active, .lb-close:active, .modal .close:active { transform: translateY(0) scale(.97); transition-duration: .08s; }
+
+/* Phone: a "Start a project" button docks at the bottom between the hero and the contact form */
+.dock-cta { display: none; }
+@media (max-width: 760px) {
+  .dock-cta { display: inline-flex; align-items: center; gap: 10px; position: fixed; z-index: 120; left: 50%; bottom: max(16px, env(safe-area-inset-bottom));
+    transform: translate(-50%, 140%); padding: 13px 22px; border-radius: 999px; background: var(--key); color: var(--key-ink); font-weight: 700; font-size: 15px; text-decoration: none;
+    box-shadow: 0 14px 34px -10px rgba(0,0,0,.6), 0 6px 26px -8px color-mix(in srgb, var(--key) 60%, transparent); transition: transform .5s var(--ease); white-space: nowrap; }
+  .dock-cta i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .dock-cta.on { transform: translate(-50%, 0); }
+  .dock-cta:active { transform: translate(-50%, 0) scale(.97); }
+}
+
+/* Browser surfaces in the site's colours */
+html { scrollbar-color: color-mix(in srgb, var(--key) 55%, var(--bg)) var(--bg); accent-color: var(--key); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--key) 45%, var(--bg)); border-radius: 99px; border: 2px solid var(--bg); }
+input, textarea, select { caret-color: var(--key); }
+a { text-underline-offset: .2em; }
 .pill.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
 .pill.ghost:hover { box-shadow: inset 0 0 0 1px var(--ink); background: transparent; color: var(--ink); }
 
@@ -399,8 +440,11 @@ body { background: transparent !important; }
 
 /* ── Services ───────────────────────────────────────── */
 .svc-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-top: 1px solid var(--line); }
-.svc { padding: 26px 24px 30px 0; border-bottom: 1px solid var(--line); }
-.svc b { display: block; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; margin-bottom: 8px; }
+.svc { padding: 26px 24px 30px 0; border-bottom: 1px solid var(--line); position: relative; }
+.svc::after { content: ""; position: absolute; left: 0; right: 24px; bottom: -1px; height: 2px; background: var(--key); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease); }
+.svc:hover::after { transform: scaleX(1); }
+.svc b { display: block; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; margin-bottom: 8px; transition: color .25s; }
+.svc:hover b { color: var(--key); }
 .svc p { margin: 0; color: var(--ink-2); font-size: 15px; max-width: 36ch; }
 
 /* ── About: name behind photo ───────────────────────── */
@@ -520,7 +564,7 @@ body { background: transparent !important; }
   .design .poster .m { flex-direction: column; font-size: 13px; }
   /* About: photo with tapes across its bottom, details below */
   .about-hero { display: flex; flex-direction: column; align-items: center; padding: 30px 0 0; overflow: hidden; }
-  .about-name { top: 20%; font-size: 17vw; }
+  .about-name { top: 20%; font-size: 12.4vw; }
   .about-photo { height: min(62svh, 500px); }
   .about-tape { bottom: auto; top: calc(30px + min(62svh, 500px) - 70px); }
   .about-tape.back { top: calc(30px + min(62svh, 500px) - 66px); }

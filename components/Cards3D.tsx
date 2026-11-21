@@ -21,39 +21,54 @@ export default function Cards3D() {
   const n = threeD.length;
 
   useEffect(() => {
-    let raf = 0;
+    let raf = 0, lastP = -1;
     const vis = watchVisible(sec.current);
+    // Sizes are measured once (and on resize), never inside the frame loop, so scrolling never forces a re-layout
+    const size = { vw: 0, vh: 0, total: 1, mw: 0, cw: [] as number[], ch: [] as number[] };
+    const measure = () => {
+      const s = sec.current;
+      size.vw = window.innerWidth; size.vh = window.innerHeight;
+      size.total = Math.max(1, (s?.offsetHeight ?? 0) - size.vh);
+      size.mw = marquee.current?.scrollWidth ?? 0;
+      size.cw = cards.current.map((c) => c?.offsetWidth ?? 0);
+      size.ch = cards.current.map((c) => c?.offsetHeight ?? 0);
+      lastP = -1;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (sec.current) ro.observe(sec.current);
+    window.addEventListener("resize", measure);
     const loop = () => {
       const s = sec.current;
       if (s && vis.on) {
-        const r = s.getBoundingClientRect();
-        const vh = window.innerHeight, vw = window.innerWidth;
-        const total = s.offsetHeight - vh;
-        const p = Math.min(1, Math.max(0, -r.top / total)); // 0 → 1 while pinned
-        const m = marquee.current;
-        if (m) m.style.transform = `translate3d(${-p * (m.scrollWidth - vw)}px, -50%, 0)`;
-
-        const cols = vw < 760 ? 2 : 3;
-        const colX = cols === 2 ? [0.06, 0.52] : [0.07, 0.39, 0.7];
-        const travel = (n / cols + 2) * vh * 0.62; // distance cards move up over the section
-        let got = 0;
-        cards.current.forEach((c, i) => {
-          if (!c) return;
-          const col = i % cols;
-          const start = vh * 1.05 + Math.floor(i / cols) * vh * 0.62 + (col === 1 ? vh * 0.28 : col === 2 ? vh * 0.12 : 0);
-          const y = start - p * travel * (1 + (col - 1) * 0.06);
-          const rot = (i % 2 ? 1 : -1) * (2 + (i % 3));
-          const w = c.offsetWidth;
-          const x = colX[col] * vw + (cols === 2 ? 0 : (vw * 0.26 - w) / 2);
-          c.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot * (y / vh)}deg)`;
-          if (y + c.offsetHeight / 2 < vh / 2) got++;
-        });
-        setCollected((g) => (g === got ? g : got));
+        const top = s.getBoundingClientRect().top; // the only read per frame
+        const { vh, vw, total } = size;
+        const p = Math.min(1, Math.max(0, -top / total)); // 0 → 1 while pinned
+        if (p !== lastP) {
+          lastP = p;
+          const m = marquee.current;
+          if (m) m.style.transform = `translate3d(${-p * (size.mw - vw)}px, -50%, 0)`;
+          const cols = vw < 760 ? 2 : 3;
+          const colX = cols === 2 ? [0.06, 0.52] : [0.07, 0.39, 0.7];
+          const travel = (n / cols + 2) * vh * 0.62; // distance cards move up over the section
+          let got = 0;
+          cards.current.forEach((c, i) => {
+            if (!c) return;
+            const col = i % cols;
+            const start = vh * 1.05 + Math.floor(i / cols) * vh * 0.62 + (col === 1 ? vh * 0.28 : col === 2 ? vh * 0.12 : 0);
+            const y = start - p * travel * (1 + (col - 1) * 0.06);
+            const rot = (i % 2 ? 1 : -1) * (2 + (i % 3));
+            const x = colX[col] * vw + (cols === 2 ? 0 : (vw * 0.26 - size.cw[i]) / 2);
+            c.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot * (y / vh)}deg)`;
+            if (y + size.ch[i] / 2 < vh / 2) got++;
+          });
+          setCollected((g) => (g === got ? g : got));
+        }
       }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => { cancelAnimationFrame(raf); vis.stop(); };
+    return () => { cancelAnimationFrame(raf); vis.stop(); ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [n]);
 
   const heightVh = Math.ceil(n / 3) * 62 + 175;

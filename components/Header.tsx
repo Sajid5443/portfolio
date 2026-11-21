@@ -17,6 +17,8 @@ export default function Header() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [active, setActive] = useState("");
   const [menu, setMenu] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [cta, setCta] = useState(false);
 
   useEffect(() => {
     setTheme((document.documentElement.dataset.theme as "light" | "dark") || "dark");
@@ -24,13 +26,33 @@ export default function Header() {
     setTime(fmt());
     const id = setInterval(() => setTime(fmt()), 20000);
 
+    // Which section is in the middle of the screen (the hero clears it)
     const io = new IntersectionObserver(
-      (es) => es.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      (es) => es.forEach((e) => e.isIntersecting && setActive(e.target.id === "top" ? "" : e.target.id)),
       { rootMargin: "-45% 0px -50% 0px" }
     );
-    links.forEach((l) => { const el = document.getElementById(l.id); if (el) io.observe(el); });
-    return () => { clearInterval(id); io.disconnect(); };
+    ["top", ...links.map((l) => l.id)].forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+
+    // Header gets a backing once the page moves; the phone CTA shows between the hero and the contact form
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 40);
+      const contact = document.getElementById("contact");
+      const nearContact = contact ? contact.getBoundingClientRect().top < window.innerHeight * 0.9 : false;
+      setCta(y > window.innerHeight * 0.9 && !nearContact);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { clearInterval(id); io.disconnect(); window.removeEventListener("scroll", onScroll); };
   }, []);
+
+  // Close the phone menu with Escape
+  useEffect(() => {
+    if (!menu) return;
+    const k = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [menu]);
 
   const toggle = () => {
     const next = theme === "light" ? "dark" : "light";
@@ -40,23 +62,28 @@ export default function Header() {
   };
 
   return (
-    <header className="header">
-      <a href="#top" className="name">{profile.name}</a>
-      <button className="menu-btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls="site-nav">{menu ? "Close" : "Menu"}</button>
-      <nav aria-label="Sections" id="site-nav" className={menu ? "open" : ""}>
-        {links.map((l, i) => (
-          <a key={l.id} href={`#${l.id}`} className={active === l.id ? "on" : ""} onClick={() => setMenu(false)}>
-            {String(i + 1).padStart(2, "0")}/{l.label}
-          </a>
-        ))}
-      </nav>
-      <div className="right">
-        <span className="clock">Dhaka {time}</span>
-        <a className="cv-btn" href={profile.cv} download="Salehin-Sajid-Resume.pdf" data-cursor="Download">CV <span aria-hidden>↓</span></a>
-        <button className="theme" onClick={toggle} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
-          <i aria-hidden />{theme === "light" ? "Dark" : "Light"}
-        </button>
-      </div>
-    </header>
+    <>
+      <header className={`header${scrolled ? " scrolled" : ""}`}>
+        <a href="#top" className="name">{profile.name}</a>
+        <button className="menu-btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls="site-nav">{menu ? "Close" : "Menu"}</button>
+        <nav aria-label="Sections" id="site-nav" className={menu ? "open" : ""}>
+          {links.map((l) => (
+            <a key={l.id} href={`#${l.id}`} className={active === l.id ? "on" : ""} aria-current={active === l.id ? "true" : undefined} onClick={() => setMenu(false)}>
+              {l.label}
+            </a>
+          ))}
+        </nav>
+        <div className="right">
+          <span className="clock"><i aria-hidden />Dhaka {time}</span>
+          <a className="cv-btn" href={profile.cv} download="Salehin-Sajid-Resume.pdf" data-cursor="Download">CV <span aria-hidden>↓</span></a>
+          <button className="theme" onClick={toggle} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
+            <i aria-hidden />{theme === "light" ? "Dark" : "Light"}
+          </button>
+        </div>
+      </header>
+      <a href="#contact" className={`dock-cta${cta ? " on" : ""}`} tabIndex={cta ? 0 : -1} aria-hidden={!cta}>
+        <i aria-hidden />Start a project
+      </a>
+    </>
   );
 }
