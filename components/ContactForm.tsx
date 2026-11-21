@@ -11,7 +11,8 @@ const full = [
 
 // Messages are delivered to your inbox by Web3Forms (free).
 // Set NEXT_PUBLIC_WEB3FORMS_KEY in Vercel → Project → Settings → Environment Variables.
-const KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+// Web3Forms access keys are public by design (safe in client code).
+const KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "1747cf56-88a4-4fb4-8024-9e6de26779ed";
 
 export default function ContactForm() {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
