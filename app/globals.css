@@ -582,3 +582,6 @@ a { text-underline-offset: .2em; }
   .lb-nav { width: 40px; height: 40px; }
   .lb-thumbs { justify-content: flex-start; }
 }
+
+/* Text for screen readers and search engines only */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }

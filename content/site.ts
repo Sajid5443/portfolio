@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────
 
 export const profile = {
-  name: "Sajid Salehin",
+  name: "Salehin Sajid",
   shortName: "Sajid",
   role: "Motion designer & 3D artist",
   location: "Dhaka, Bangladesh — working worldwide",

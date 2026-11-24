@@ -103,7 +103,7 @@ export default function Cards3D() {
             <a href={portfolios.threeD} target="_blank" rel="noopener noreferrer">ArtStation ↗</a>
           </div>
           <div className="marquee" ref={marquee} aria-hidden>
-            <span>3D Artist® Sajid Salehin® 3D Artist®</span>
+            <span>3D Artist® Salehin Sajid® 3D Artist®</span>
           </div>
           <h2 className="skip">3D work</h2>
           <div className="cards">

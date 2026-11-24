@@ -81,7 +81,7 @@ export default function Chrome() {
   return (
     <>
       <div className={`loader${done ? " done" : ""}`} aria-hidden>
-        <div className="top"><span>Loading.</span><span>Sajid Salehin ©{new Date().getFullYear()}</span></div>
+        <div className="top"><span>Loading.</span><span>Salehin Sajid ©{new Date().getFullYear()}</span></div>
         <div className="pct">{pct}%</div>
       </div>
       <div className="liquid" aria-hidden><i className="b1" /><i className="b2" /><i className="b3" /><i className="b5" /><i className="b4" ref={follow} /></div>

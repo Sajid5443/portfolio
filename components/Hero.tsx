@@ -61,6 +61,7 @@ export default function Hero() {
     <section className="hero" id="top">
       <div className="hero-head">
         <h1 data-reveal>
+          <span className="sr-only">{profile.name}, {profile.role}: </span>
           <span className="rv"><span>Motion design</span></span>
           <span className="rv"><span><em>&amp;</em> <span className="hl">3D</span> that</span></span>
           <span className="rv"><span>explains products.</span></span>

@@ -1,4 +1,4 @@
-# Sajid Salehin: Portfolio Website
+# Salehin Sajid: Portfolio Website
 
 Next.js site with motion work, 3D renders, video edits, motion posters, an About section and a contact form.
 
